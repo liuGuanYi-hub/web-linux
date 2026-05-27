@@ -77,14 +77,7 @@ export const desktopIcons: Array<{ appId: string; label: string; icon: string }>
   { appId: 'fileManager', label: 'File Manager', icon: 'Folder' },
   { appId: 'terminal', label: 'Terminal', icon: 'Terminal' },
   { appId: 'calculator', label: 'Calculator', icon: 'Calculator' },
-  { appId: 'minesweeper', label: 'Minesweeper', icon: 'Grid' },
-  { appId: 'game2048', label: '2048', icon: 'Grid' },
-  { appId: 'snake', label: 'Snake', icon: 'Zap' },
-  { appId: 'tetris', label: 'Tetris', icon: 'Grid' },
   { appId: 'codeEditor', label: 'Code Editor', icon: 'Code' },
-  { appId: 'solitaire', label: 'Solitaire', icon: 'Grid' },
-  { appId: 'sudoku', label: 'Sudoku', icon: 'Grid' },
-  { appId: 'chess', label: 'Chess', icon: 'Grid' },
   { appId: 'taskManager', label: 'Task Manager', icon: 'Activity' },
   { appId: 'jsonFormatter', label: 'JSON Formatter', icon: 'Braces' },
   { appId: 'regexTester', label: 'Regex Tester', icon: 'Type' },
@@ -92,4 +85,14 @@ export const desktopIcons: Array<{ appId: string; label: string; icon: string }>
   { appId: 'imageViewer', label: 'Image Viewer', icon: 'Image' },
   { appId: 'baseConverter', label: 'Base Converter', icon: 'Hash' },
   { appId: 'markdownPreview', label: 'Markdown Preview', icon: 'FileText' },
+]
+
+export const gameIcons: Array<{ appId: string; label: string; icon: string }> = [
+  { appId: 'minesweeper', label: 'Minesweeper', icon: 'Grid' },
+  { appId: 'game2048', label: '2048', icon: 'Grid' },
+  { appId: 'snake', label: 'Snake', icon: 'Zap' },
+  { appId: 'tetris', label: 'Tetris', icon: 'Grid' },
+  { appId: 'solitaire', label: 'Solitaire', icon: 'Grid' },
+  { appId: 'sudoku', label: 'Sudoku', icon: 'Grid' },
+  { appId: 'chess', label: 'Chess', icon: 'Grid' },
 ]

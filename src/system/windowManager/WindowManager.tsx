@@ -57,6 +57,7 @@ export function WindowManager() {
         inset: 0,
         bottom: 48,
         overflow: 'hidden',
+        pointerEvents: 'none',
       }}
     >
       {windows.map(win => (

@@ -5,9 +5,10 @@ const ROWS = 20
 const EMPTY = 0
 
 type Shape = number[][]
-type Direction = 'left' | 'right' | 'down' | 'rotate'
+type Direction = 'left' | 'right' | 'down' | 'rotate' | 'drop'
 type GameState = 'start' | 'playing' | 'paused' | 'over'
 type Cell = number | string
+type Piece = ReturnType<typeof randomPiece>
 
 const SHAPES: Array<{ shape: Shape; color: string; name: string }> = [
   { name: 'I', color: '#5ABCB8', shape: [[1, 1, 1, 1]] },
@@ -81,8 +82,7 @@ function clearLines(board: Cell[][]): { board: Cell[][]; lines: number } {
 
 export function TetrisGame() {
   const [board, setBoard] = useState<Cell[][]>(() => createBoard())
-  const [, setPiece] = useState(() => randomPiece())
-  const [nextPiece] = useState(() => randomPiece())
+  const [piece, setPiece] = useState(() => randomPiece())
   const [score, setScore] = useState(0)
   const [lines, setLines] = useState(0)
   const [level, setLevel] = useState(1)
@@ -103,6 +103,24 @@ export function TetrisGame() {
     if (gameState !== 'playing') return
     setPiece(prev => {
       const np = { ...prev }
+
+      const lockPiece = (lockedPiece: Piece) => {
+        const nb = placePiece(board, lockedPiece)
+        const { board: cb, lines: cl } = clearLines(nb)
+        setBoard(cb)
+        setScore(s => s + cl * 10 * level)
+        const newLines = lines + cl
+        setLines(newLines)
+        if (cl > 0) setLevel(Math.floor(newLines / 10) + 1)
+        const next = preview
+        setPreview(randomPiece())
+        if (!canPlace(cb, next)) {
+          setGameState('over')
+          return lockedPiece
+        }
+        return next
+      }
+
       if (dir === 'rotate') {
         const rotated = rotate(prev.shape)
         np.shape = rotated
@@ -113,23 +131,15 @@ export function TetrisGame() {
       } else if (dir === 'right') {
         np.x++
         if (!canPlace(board, np)) return prev
+      } else if (dir === 'drop') {
+        while (canPlace(board, { ...np, y: np.y + 1 })) {
+          np.y++
+        }
+        return lockPiece(np)
       } else if (dir === 'down') {
         np.y++
         if (!canPlace(board, np)) {
-          const nb = placePiece(board, prev)
-          const { board: cb, lines: cl } = clearLines(nb)
-          setBoard(cb)
-          setScore(s => s + cl * 10 * level)
-          const newLines = lines + cl
-          setLines(newLines)
-          if (cl > 0) setLevel(Math.floor(newLines / 10) + 1)
-          const next = preview
-          setPreview(randomPiece())
-          if (!canPlace(cb, next)) {
-            setGameState('over')
-            return prev
-          }
-          return next
+          return lockPiece(prev)
         }
       }
       return np
@@ -154,7 +164,7 @@ export function TetrisGame() {
       }
       const map: Record<string, Direction> = {
         ArrowLeft: 'left', ArrowRight: 'right', ArrowDown: 'down',
-        ArrowUp: 'rotate', z: 'rotate', Z: 'rotate',
+        ArrowUp: 'rotate', z: 'rotate', Z: 'rotate', ' ': 'drop',
       }
       if (map[e.key]) { e.preventDefault(); move(map[e.key]) }
     }
@@ -168,6 +178,10 @@ export function TetrisGame() {
     if (cell === EMPTY) return '#111'
     return cell as string
   }
+
+  const displayBoard = gameState === 'playing' || gameState === 'paused'
+    ? placePiece(board, piece)
+    : board
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', background: 'var(--color-window-bg)', fontFamily: 'var(--font-mono)' }}>
@@ -189,7 +203,7 @@ export function TetrisGame() {
           borderRadius: 'var(--radius-md)',
           border: '2px solid #333',
         }}>
-          {board.map((row, ri) =>
+          {displayBoard.map((row, ri) =>
             row.map((cell, ci) => (
               <div key={ri + '-' + ci} style={{
                 width: cellSize, height: cellSize,
@@ -211,9 +225,9 @@ export function TetrisGame() {
         <div>
           <div style={{ fontSize: 10, color: 'var(--color-text-secondary)', marginBottom: 6 }}>NEXT</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 16px)', gap: 1, background: '#111', padding: 4, borderRadius: 6 }}>
-            {nextPiece.shape.map((row, ri) =>
+            {preview.shape.map((row, ri) =>
               row.map((cell, ci) => (
-                <div key={'n' + ri + '-' + ci} style={{ width: 16, height: 16, background: cell ? nextPiece.color : 'transparent' }} />
+                <div key={'n' + ri + '-' + ci} style={{ width: 16, height: 16, background: cell ? preview.color : 'transparent' }} />
               ))
             )}
           </div>

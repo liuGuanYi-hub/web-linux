@@ -174,15 +174,15 @@ export function Window({ window: win, children }: WindowProps) {
           {win.title}
         </span>
 
-        <div style={{ display: 'flex', gap: 8, marginLeft: 12 }} onMouseDown={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', gap: 10, marginLeft: 12 }} onMouseDown={e => e.stopPropagation()}>
           <button onClick={() => minimizeWindow(win.id)} title="Minimize" style={windowButtonStyle('var(--color-btn-minimize)')}>
-            <Minus size={8} color="#fff" />
+            <Minus size={10} color="#fff" strokeWidth={2.5} />
           </button>
           <button onClick={() => toggleMaximize(win.id)} title={win.isMaximized ? 'Restore' : 'Maximize'} style={windowButtonStyle('var(--color-btn-maximize)')}>
-            {win.isMaximized ? <Square size={7} color="#fff" /> : <Maximize2 size={7} color="#fff" />}
+            {win.isMaximized ? <Square size={9} color="#fff" strokeWidth={2.5} /> : <Maximize2 size={9} color="#fff" strokeWidth={2.5} />}
           </button>
           <button onClick={() => closeWindow(win.id)} title="Close" style={windowButtonStyle('var(--color-btn-close)')}>
-            <X size={8} color="#fff" />
+            <X size={10} color="#fff" strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -209,8 +209,8 @@ export function Window({ window: win, children }: WindowProps) {
 
 function windowButtonStyle(background: string): React.CSSProperties {
   return {
-    width: 14,
-    height: 14,
+    width: 18,
+    height: 18,
     borderRadius: '50%',
     border: 'none',
     background,

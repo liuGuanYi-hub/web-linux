@@ -59,29 +59,18 @@ function rotateCounter(board: number[][]): number[][] {
 }
 
 function doMove(board: number[][], dir: number): { board: number[][], moved: boolean } {
-  // dir: 0=left, 1=up, 2=right, 3=down
   let b = clone(board)
   const rotates = dir === 2 ? 2 : dir === 3 ? 1 : dir === 1 ? 3 : 0
   for (let i = 0; i < rotates; i++) b = rotateClockwise(b)
-  let moved = false
   const nb: number[][] = []
   for (const row of b) {
-    const nr = slideRow(row)
-    if (nr.join() !== row.join()) moved = true
-    nb.push(nr)
+    nb.push(slideRow(row))
   }
-  for (let i = 0; i < rotates; i++) nb.push(nb.shift()!)
-  if (rotates === 1) {
-    for (let i = 0; i < 3; i++) nb.push(nb.shift()!)
-  } else if (rotates === 2) {
-    for (let i = 0; i < 2; i++) nb.push(nb.shift()!)
-  } else if (rotates === 3) {
-    nb.push(nb.shift()!)
-  }
-  const final = rotates === 1 ? rotateCounter(nb)
-    : rotates === 2 ? rotateCounter(rotateCounter(nb))
-    : rotates === 3 ? rotateClockwise(nb)
-    : nb
+
+  let final = nb
+  for (let i = 0; i < rotates; i++) final = rotateCounter(final)
+  const moved = final.some((row, r) => row.some((cell, c) => cell !== board[r][c]))
+
   return { board: final, moved }
 }
 
@@ -126,9 +115,10 @@ export function Game2048() {
       addRandom(nb)
       setBoard([...nb])
       setScore(nb.flat().reduce((a, b) => a + b, 0))
+      if (!keepPlaying && nb.flat().some(v => v >= 2048)) setWon(true)
       if (!canMove(nb)) setGameOver(true)
     }
-  }, [board, gameOver])
+  }, [board, gameOver, keepPlaying])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

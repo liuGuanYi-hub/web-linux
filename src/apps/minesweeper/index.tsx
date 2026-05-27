@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Bomb, Flag, Trophy } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Bomb, Clock, Flag, Trophy } from 'lucide-react'
 
 const BOARD_SIZE = 9
 const TOTAL_MINES = 10
@@ -11,7 +11,9 @@ interface Cell {
   adjacent: number
 }
 
-function createBoard(): Cell[][] {
+type GameState = 'playing' | 'won' | 'lost'
+
+function createBoard(safeCell?: [number, number]): Cell[][] {
   const board: Cell[][] = []
   for (let i = 0; i < BOARD_SIZE; i++) {
     board[i] = []
@@ -20,18 +22,16 @@ function createBoard(): Cell[][] {
     }
   }
 
-  // 随机放地雷
   let placed = 0
   while (placed < TOTAL_MINES) {
     const r = Math.floor(Math.random() * BOARD_SIZE)
     const c = Math.floor(Math.random() * BOARD_SIZE)
-    if (!board[r][c].mine) {
+    if (!board[r][c].mine && (!safeCell || safeCell[0] !== r || safeCell[1] !== c)) {
       board[r][c].mine = true
       placed++
     }
   }
 
-  // 计算每个格子的数字
   for (let i = 0; i < BOARD_SIZE; i++) {
     for (let j = 0; j < BOARD_SIZE; j++) {
       if (!board[i][j].mine) {
@@ -40,9 +40,7 @@ function createBoard(): Cell[][] {
           for (let dj = -1; dj <= 1; dj++) {
             const ni = i + di
             const nj = j + dj
-            if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE && board[ni][nj].mine) {
-              count++
-            }
+            if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE && board[ni][nj].mine) count++
           }
         }
         board[i][j].adjacent = count
@@ -74,10 +72,8 @@ function floodFill(board: Cell[][], r: number, c: number): Cell[][] {
         for (let dj = -1; dj <= 1; dj++) {
           const ni = i + di
           const nj = j + dj
-          if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE) {
-            if (!newBoard[ni][nj].revealed && !newBoard[ni][nj].mine) {
-              stack.push([ni, nj])
-            }
+          if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE && !newBoard[ni][nj].revealed && !newBoard[ni][nj].mine) {
+            stack.push([ni, nj])
           }
         }
       }
@@ -87,22 +83,18 @@ function floodFill(board: Cell[][], r: number, c: number): Cell[][] {
   return newBoard
 }
 
-type GameState = 'playing' | 'won' | 'lost'
-
 export function MinesweeperApp() {
   const [board, setBoard] = useState<Cell[][]>(() => createBoard())
   const [gameState, setGameState] = useState<GameState>('playing')
   const [flagCount, setFlagCount] = useState(0)
   const [time, setTime] = useState(0)
   const [timerOn, setTimerOn] = useState(false)
+  const [firstMove, setFirstMove] = useState(true)
 
-  // 计时器
   useEffect(() => {
     let interval: number | undefined
     if (timerOn && gameState === 'playing') {
-      interval = window.setInterval(() => {
-        setTime(t => t + 1)
-      }, 1000)
+      interval = window.setInterval(() => setTime(t => t + 1), 1000)
     }
     return () => {
       if (interval) clearInterval(interval)
@@ -115,25 +107,27 @@ export function MinesweeperApp() {
     setFlagCount(0)
     setTime(0)
     setTimerOn(false)
+    setFirstMove(true)
   }
 
   const revealCell = (r: number, c: number) => {
     if (gameState !== 'playing') return
-    const cell = board[r][c]
-    if (cell.revealed || cell.flagged) return
+    let currentBoard = board
+    if (firstMove) {
+      currentBoard = createBoard([r, c])
+      setFirstMove(false)
+    }
 
-    // 第一次点击才启动计时器
+    const cell = currentBoard[r][c]
+    if (cell.revealed || cell.flagged) return
     if (!timerOn) setTimerOn(true)
 
     if (cell.mine) {
-      // 踩雷了，显示所有地雷
-      const newBoard = board.map(row => row.map(c => ({ ...c })))
+      const newBoard = currentBoard.map(row => row.map(cell => ({ ...cell })))
       newBoard[r][c].revealed = true
       for (let i = 0; i < BOARD_SIZE; i++) {
         for (let j = 0; j < BOARD_SIZE; j++) {
-          if (newBoard[i][j].mine && !newBoard[i][j].flagged) {
-            newBoard[i][j].revealed = true
-          }
+          if (newBoard[i][j].mine && !newBoard[i][j].flagged) newBoard[i][j].revealed = true
         }
       }
       setBoard(newBoard)
@@ -142,10 +136,9 @@ export function MinesweeperApp() {
       return
     }
 
-    const newBoard = floodFill(board, r, c)
+    const newBoard = floodFill(currentBoard, r, c)
     setBoard(newBoard)
 
-    // 检查胜利
     let unrevealed = 0
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
@@ -160,9 +153,7 @@ export function MinesweeperApp() {
 
   const toggleFlag = (e: React.MouseEvent, r: number, c: number) => {
     e.preventDefault()
-    if (gameState !== 'playing') return
-    if (board[r][c].revealed) return
-
+    if (gameState !== 'playing' || board[r][c].revealed) return
     const newBoard = board.map(row => row.map(cell => ({ ...cell })))
     newBoard[r][c].flagged = !newBoard[r][c].flagged
     setBoard(newBoard)
@@ -203,7 +194,6 @@ export function MinesweeperApp() {
       background: 'var(--color-window-bg)',
       gap: 16,
     }}>
-      {/* 状态栏 */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -216,10 +206,9 @@ export function MinesweeperApp() {
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Flag size={13} /> {flagCount}/{TOTAL_MINES}</span>
         {gameState === 'won' && <span style={{ color: 'var(--color-btn-maximize)', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Trophy size={14} /> You win!</span>}
         {gameState === 'lost' && <span style={{ color: 'var(--color-btn-close)', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Bomb size={14} /> Game over</span>}
-        {gameState === 'playing' && <span>⏱ {formatTime(time)}</span>}
+        {gameState === 'playing' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Clock size={13} /> {formatTime(time)}</span>}
       </div>
 
-      {/* 游戏板 */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${BOARD_SIZE}, 36px)`,
@@ -231,7 +220,7 @@ export function MinesweeperApp() {
       }}>
         {board.map((row, i) =>
           row.map((cell, j) => (
-            <div
+            <button
               key={`${i}-${j}`}
               onClick={() => revealCell(i, j)}
               onContextMenu={e => toggleFlag(e, i, j)}
@@ -253,15 +242,15 @@ export function MinesweeperApp() {
                 boxShadow: cell.revealed ? 'none' : 'var(--shadow-sm)',
                 transition: 'all 80ms ease',
                 border: cell.flagged ? '2px solid var(--color-accent)' : 'none',
+                padding: 0,
               }}
             >
               {getCellContent(cell)}
-            </div>
+            </button>
           ))
         )}
       </div>
 
-      {/* 重新开始按钮 */}
       <button
         onClick={resetGame}
         style={{

@@ -44,8 +44,8 @@ export function Desktop() {
         bottom: 48,
         background: 'var(--desktop-wallpaper)',
         overflow: 'hidden',
-        }}
-        onClick={() => setGameFolderOpen(false)}
+      }}
+      onClick={() => setGameFolderOpen(false)}
     >
       <div
         style={{
@@ -85,9 +85,9 @@ export function Desktop() {
             position: 'absolute',
             top: 20,
             left: 116,
-            width: 300,
-            padding: 14,
-            background: 'var(--color-surface)',
+            width: 316,
+            padding: 16,
+            background: 'rgba(255,255,255,0.96)',
             border: '1px solid var(--color-window-border)',
             borderRadius: 'var(--radius-lg)',
             boxShadow: 'var(--shadow-lg)',
@@ -95,6 +95,7 @@ export function Desktop() {
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 10,
             zIndex: 2,
+            backdropFilter: 'blur(8px)',
           }}
         >
           {gameIcons.map((game) => (
@@ -126,6 +127,8 @@ function DesktopIcon({ icon, label, compact = false, onClick }: DesktopIconProps
   return (
     <button
       onClick={onClick}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.42)' }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
       style={{
         display: 'flex',
         flexDirection: 'column',

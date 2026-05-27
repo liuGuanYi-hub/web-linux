@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useWindowStore } from '@/stores/windowStore'
-import { getApp } from '@/system/AppRegistry'
-import { StartMenu } from '../startMenu/StartMenu'
 import { Home } from 'lucide-react'
+import { getApp } from '@/system/AppRegistry'
 import { AppIcon } from '@/system/AppIcon'
+import { useWindowStore } from '@/stores/windowStore'
+import { StartMenu } from '../startMenu/StartMenu'
 
 export function Taskbar() {
   const { windows, activeId, focusWindow, minimizeWindow } = useWindowStore()
@@ -29,7 +29,6 @@ export function Taskbar() {
           zIndex: 9999,
         }}
       >
-        {/* 开始按钮 */}
         <button
           onClick={() => setStartMenuOpen(!startMenuOpen)}
           style={{
@@ -44,17 +43,13 @@ export function Taskbar() {
             justifyContent: 'center',
             transition: 'background 150ms ease',
           }}
+          title="Start"
         >
-          <Home
-            size={20}
-            color={startMenuOpen ? '#fff' : 'var(--color-text)'}
-          />
+          <Home size={20} color={startMenuOpen ? '#fff' : 'var(--color-text)'} />
         </button>
 
-        {/* 分隔线 */}
         <div style={{ width: 1, height: 24, background: 'var(--color-window-border)', margin: '0 4px' }} />
 
-        {/* 窗口按钮 */}
         <div style={{ display: 'flex', gap: 4, flex: 1, overflowX: 'auto' }}>
           {windows.map(win => {
             const app = getApp(win.appId)
@@ -89,7 +84,7 @@ export function Taskbar() {
                 }}
               >
                 <AppIcon icon={app?.icon || win.icon} size={15} color="var(--color-text)" />
-                <span style={{ fontSize: 12, color: 'var(--color-text)' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {app?.name || win.title}
                 </span>
                 {isActive && (
@@ -109,13 +104,11 @@ export function Taskbar() {
           })}
         </div>
 
-        {/* 系统托盘（占位） */}
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <div style={{ fontSize: 12, color: 'var(--color-text)', minWidth: 50, textAlign: 'right' }} id="taskbar-clock" />
         </div>
       </div>
 
-      {/* 开始菜单 */}
       <StartMenu open={startMenuOpen} onClose={() => setStartMenuOpen(false)} />
     </>
   )

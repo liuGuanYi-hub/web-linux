@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Maximize2, Minus, Square, X } from 'lucide-react'
 import { useWindowStore, type WindowState } from '@/stores/windowStore'
 
@@ -21,12 +21,30 @@ export function Window({ window: win, children }: WindowProps) {
 
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null)
   const resizeRef = useRef<{ dir: ResizeDir; startX: number; startY: number; origW: number; origH: number; origX: number; origY: number } | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
   const isActive = useWindowStore(s => s.activeId === win.id)
+  const [isClosing, setIsClosing] = useState(false)
+  const [isInteracting, setIsInteracting] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current)
+    }
+  }, [])
+
+  const requestClose = () => {
+    if (isClosing) return
+    setIsClosing(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      closeWindow(win.id)
+    }, 170)
+  }
 
   const onTitleBarMouseDown = (e: React.MouseEvent) => {
     if (win.isMaximized) return
     e.preventDefault()
     focusWindow(win.id)
+    setIsInteracting(true)
     dragRef.current = {
       startX: e.clientX,
       startY: e.clientY,
@@ -48,6 +66,7 @@ export function Window({ window: win, children }: WindowProps) {
       if (newY <= 5) {
         toggleMaximize(win.id)
         dragRef.current = null
+        setIsInteracting(false)
         return
       }
 
@@ -68,6 +87,7 @@ export function Window({ window: win, children }: WindowProps) {
 
     const onMouseUp = () => {
       dragRef.current = null
+      setIsInteracting(false)
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
     }
@@ -81,6 +101,7 @@ export function Window({ window: win, children }: WindowProps) {
     e.preventDefault()
     e.stopPropagation()
     focusWindow(win.id)
+    setIsInteracting(true)
     resizeRef.current = {
       dir,
       startX: e.clientX,
@@ -125,6 +146,7 @@ export function Window({ window: win, children }: WindowProps) {
 
     const onMouseUp = () => {
       resizeRef.current = null
+      setIsInteracting(false)
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
     }
@@ -134,60 +156,46 @@ export function Window({ window: win, children }: WindowProps) {
   }
 
   const baseStyle: React.CSSProperties = {
-    position: 'absolute',
     left: win.x,
     top: win.y,
     width: win.width,
     height: win.height,
     zIndex: win.zIndex,
-    borderRadius: 'var(--radius-window)',
-    border: '1px solid var(--color-window-border)',
-    boxShadow: win.isMaximized ? 'none' : 'var(--shadow-window)',
-    background: 'var(--color-window-bg)',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    transition: 'transform 160ms ease-out, opacity 160ms ease-out',
-    transform: win.isMinimized ? 'scale(0.8) translateY(100%)' : 'scale(1) translateY(0)',
-    opacity: win.isMinimized ? 0 : 1,
-    pointerEvents: win.isMinimized ? 'none' : 'auto',
   }
 
+  const className = [
+    'window',
+    isActive ? 'active' : 'inactive',
+    win.isMaximized ? 'maximized' : '',
+    win.isMinimized ? 'minimized' : '',
+    isClosing ? 'closing' : '',
+    isInteracting ? 'interacting' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <div style={baseStyle} className={`window ${isActive ? 'active' : 'inactive'}`}>
+    <div style={baseStyle} className={className}>
       <div
-        className="title-bar"
-        style={{
-          height: 32,
-          background: 'var(--color-titlebar)',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 12px',
-          cursor: win.isMaximized ? 'default' : 'move',
-          flexShrink: 0,
-          borderTopLeftRadius: 'var(--radius-window)',
-          borderTopRightRadius: 'var(--radius-window)',
-        }}
+        className="window__titlebar"
         onMouseDown={onTitleBarMouseDown}
       >
-        <span style={{ fontSize: 12, color: 'var(--color-text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span className="window__title">
           {win.title}
         </span>
 
-        <div style={{ display: 'flex', gap: 10, marginLeft: 12 }} onMouseDown={e => e.stopPropagation()}>
-          <button onClick={() => minimizeWindow(win.id)} title="Minimize" style={windowButtonStyle('var(--color-btn-minimize)')}>
-            <Minus size={10} color="#fff" strokeWidth={2.5} />
+        <div className="window__controls" onMouseDown={e => e.stopPropagation()}>
+          <button onClick={() => minimizeWindow(win.id)} title="Minimize" className="window__control" style={windowButtonStyle('var(--color-btn-minimize)')}>
+            <Minus size={11} color="#fff" strokeWidth={2.7} />
           </button>
-          <button onClick={() => toggleMaximize(win.id)} title={win.isMaximized ? 'Restore' : 'Maximize'} style={windowButtonStyle('var(--color-btn-maximize)')}>
-            {win.isMaximized ? <Square size={9} color="#fff" strokeWidth={2.5} /> : <Maximize2 size={9} color="#fff" strokeWidth={2.5} />}
+          <button onClick={() => toggleMaximize(win.id)} title={win.isMaximized ? 'Restore' : 'Maximize'} className="window__control" style={windowButtonStyle('var(--color-btn-maximize)')}>
+            {win.isMaximized ? <Square size={10} color="#fff" strokeWidth={2.7} /> : <Maximize2 size={10} color="#fff" strokeWidth={2.7} />}
           </button>
-          <button onClick={() => closeWindow(win.id)} title="Close" style={windowButtonStyle('var(--color-btn-close)')}>
-            <X size={10} color="#fff" strokeWidth={2.5} />
+          <button onClick={requestClose} title="Close" className="window__control" style={windowButtonStyle('var(--color-btn-close)')}>
+            <X size={11} color="#fff" strokeWidth={2.7} />
           </button>
         </div>
       </div>
 
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div className="window__content">
         {children}
       </div>
 
@@ -209,15 +217,6 @@ export function Window({ window: win, children }: WindowProps) {
 
 function windowButtonStyle(background: string): React.CSSProperties {
   return {
-    width: 18,
-    height: 18,
-    borderRadius: '50%',
-    border: 'none',
     background,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 0,
   }
 }

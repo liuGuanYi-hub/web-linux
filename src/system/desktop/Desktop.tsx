@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
 import { AppIcon } from '@/system/AppIcon'
 import { desktopIcons, gameIcons } from '@/system/AppRegistry'
 import { openApp } from '@/system/openApp'
@@ -36,27 +37,21 @@ export function Desktop() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (!gameFolderOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setGameFolderOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [gameFolderOpen])
+
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        bottom: 48,
-        background: 'var(--desktop-wallpaper)',
-        overflow: 'hidden',
-      }}
+      className="desktop"
       onClick={() => setGameFolderOpen(false)}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
+      <div className="desktop-icon-rail">
         <DesktopIcon
           icon="Folder"
           label="Game"
@@ -80,36 +75,34 @@ export function Desktop() {
 
       {gameFolderOpen && (
         <div
+          className="game-folder"
           onClick={(e) => e.stopPropagation()}
-          style={{
-            position: 'absolute',
-            top: 20,
-            left: 116,
-            width: 316,
-            padding: 16,
-            background: 'rgba(255,255,255,0.96)',
-            border: '1px solid var(--color-window-border)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-lg)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 10,
-            zIndex: 2,
-            backdropFilter: 'blur(8px)',
-          }}
         >
-          {gameIcons.map((game) => (
-            <DesktopIcon
-              key={game.appId}
-              icon={game.icon}
-              label={game.label}
-              compact
-              onClick={() => {
-                openApp(game.appId)
-                setGameFolderOpen(false)
-              }}
-            />
-          ))}
+          <div className="game-folder__header">
+            <span className="game-folder__title">Game</span>
+            <button
+              className="game-folder__close"
+              type="button"
+              title="Close"
+              onClick={() => setGameFolderOpen(false)}
+            >
+              <X size={15} />
+            </button>
+          </div>
+          <div className="game-folder__grid">
+            {gameIcons.map((game) => (
+              <DesktopIcon
+                key={game.appId}
+                icon={game.icon}
+                label={game.label}
+                compact
+                onClick={() => {
+                  openApp(game.appId)
+                  setGameFolderOpen(false)
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -126,47 +119,14 @@ interface DesktopIconProps {
 function DesktopIcon({ icon, label, compact = false, onClick }: DesktopIconProps) {
   return (
     <button
+      type="button"
+      className="desktop-icon"
       onClick={onClick}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.42)' }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 4,
-        cursor: 'pointer',
-        padding: compact ? 6 : 8,
-        border: 'none',
-        background: 'transparent',
-        borderRadius: 'var(--radius-md)',
-        transition: 'background 100ms ease',
-      }}
     >
-      <span
-        style={{
-          width: compact ? 48 : 56,
-          height: compact ? 48 : 56,
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-sm)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      <span className="desktop-icon__tile">
         <AppIcon icon={icon} size={compact ? 24 : 28} color="var(--color-text)" />
       </span>
-      <span
-        style={{
-          fontSize: 11,
-          color: 'var(--color-text)',
-          textAlign: 'center',
-          maxWidth: compact ? 80 : 72,
-          lineHeight: 1.2,
-          textShadow: '0 1px 2px rgba(255,255,255,0.8)',
-          overflowWrap: 'anywhere',
-        }}
-      >
+      <span className="desktop-icon__label">
         {label}
       </span>
     </button>

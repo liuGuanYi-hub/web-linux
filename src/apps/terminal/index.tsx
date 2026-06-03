@@ -4,7 +4,6 @@ import { FitAddon } from '@xterm/addon-fit'
 import { X } from 'lucide-react'
 import '@xterm/xterm/css/xterm.css'
 
-// 虚拟 FS 命令
 const commands: Record<string, (args: string[], term: XTerm) => void> = {
   ls: (_args, term) => {
     const dirs = ['documents', 'pictures', 'music', 'videos', 'downloads', '.config']
@@ -23,18 +22,10 @@ const commands: Record<string, (args: string[], term: XTerm) => void> = {
     }
   },
   mkdir: (args, term) => {
-    if (!args[0]) {
-      term.writeln('\x1b[31mmkdir: missing operand\x1b[0m')
-    } else {
-      term.writeln('')
-    }
+    term.writeln(args[0] ? '' : '\x1b[31mmkdir: missing operand\x1b[0m')
   },
   touch: (args, term) => {
-    if (!args[0]) {
-      term.writeln('\x1b[31mtouch: missing file operand\x1b[0m')
-    } else {
-      term.writeln('')
-    }
+    term.writeln(args[0] ? '' : '\x1b[31mtouch: missing file operand\x1b[0m')
   },
   cat: (args, term) => {
     if (!args[0]) {
@@ -77,22 +68,19 @@ const commands: Record<string, (args: string[], term: XTerm) => void> = {
     }
     const appId = args[0]
     term.writeln(`\x1b[32mOpening ${appId}...\x1b[0m`)
-    // 调用 openApp 打开 app
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('open-app', { detail: appId }))
-    }, 100)
+    window.dispatchEvent(new CustomEvent('open-app', { detail: appId }))
   },
 }
 
-const welcomeText = `\x1b[33m╔══════════════════════════════════════════╗\x1b[0m
-\x1b[33m║\x1b[0m  \x1b[1mWelcome to Web Linux Terminal\x1b[[0m          \x1b[33m║\x1b[0m
-\x1b[33m║\x1b[0m  Type \x1b[32mhelp\x1b[0m for available commands      \x1b[33m║\x1b[0m
-\x1b[33m╚══════════════════════════════════════════╝\x1b[0m
-`
+const welcomeText = [
+  '\x1b[33m+------------------------------------------+\x1b[0m',
+  '\x1b[33m|\x1b[0m  \x1b[1mWelcome to Web Linux Terminal\x1b[0m        \x1b[33m|\x1b[0m',
+  '\x1b[33m|\x1b[0m  Type \x1b[32mhelp\x1b[0m for available commands       \x1b[33m|\x1b[0m',
+  '\x1b[33m+------------------------------------------+\x1b[0m',
+].join('\r\n')
 
 export function TerminalApp() {
   const termRef = useRef<HTMLDivElement>(null)
-  const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
   const [tabs, setTabs] = useState([{ id: 1 }])
   const [activeTab, setActiveTab] = useState(1)
@@ -103,10 +91,10 @@ export function TerminalApp() {
 
     const term = new XTerm({
       theme: {
-        background: '#FEFEFE',
+        background: '#fffefd',
         foreground: '#4A4540',
         cursor: '#C49A6C',
-        cursorAccent: '#FEFEFE',
+        cursorAccent: '#fffefd',
         selectionBackground: '#C49A6C40',
         black: '#4A4540',
         brightBlack: '#7A746C',
@@ -127,7 +115,7 @@ export function TerminalApp() {
       },
       fontFamily: '"Cascadia Code", "Fira Code", monospace',
       fontSize: 13,
-      lineHeight: 1.2,
+      lineHeight: 1.25,
       cursorBlink: true,
       cursorStyle: 'bar',
     })
@@ -136,15 +124,11 @@ export function TerminalApp() {
     term.loadAddon(fitAddon)
     term.open(termRef.current)
     fitAddon.fit()
-
-    xtermRef.current = term
     fitAddonRef.current = fitAddon
 
-    // 初始欢迎信息
     term.writeln(welcomeText)
     term.write('\r\n\x1b[32muser@weblinux\x1b[0m:\x1b[34m~\x1b[0m$ ')
 
-    // 命令处理
     let currentLine = ''
 
     term.onKey(({ key, domEvent }) => {
@@ -161,7 +145,7 @@ export function TerminalApp() {
 
           if (commands[command]) {
             commands[command](args, term)
-          } else if (command) {
+          } else {
             term.writeln(`\x1b[31mbash: ${command}: command not found\x1b[0m`)
           }
         }
@@ -174,7 +158,7 @@ export function TerminalApp() {
           term.write('\b \b')
         }
       } else if (domEvent.key === 'Tab') {
-        // 自动补全
+        domEvent.preventDefault()
         const completions = Object.keys(commands)
         const matches = completions.filter(c => c.startsWith(currentLine))
         if (matches.length === 1) {
@@ -188,114 +172,72 @@ export function TerminalApp() {
       }
     })
 
-    term.onData(() => {
-      // 处理一些特殊情况
-    })
-
-    // 监听 resize
     const handleResize = () => {
-      if (fitAddonRef.current) {
-        fitAddonRef.current.fit()
-      }
+      fitAddonRef.current?.fit()
     }
 
     window.addEventListener('resize', handleResize)
 
-    // 监听 open-app 事件（从终端输入 open 命令）
-    const handleOpenApp = (e: CustomEvent<string>) => {
-      term.writeln(`Opening ${e.detail}...`)
-    }
-    window.addEventListener('open-app', handleOpenApp as EventListener)
-
     return () => {
       window.removeEventListener('resize', handleResize)
-      window.removeEventListener('open-app', handleOpenApp as EventListener)
       term.dispose()
     }
   }, [])
 
-  // 添加新标签页
   const addTab = () => {
-    tabCounter.current++
-    setTabs([...tabs, { id: tabCounter.current }])
+    tabCounter.current += 1
+    setTabs(current => [...current, { id: tabCounter.current }])
     setActiveTab(tabCounter.current)
   }
 
+  const closeTab = (tabId: number) => {
+    const next = tabs.filter(tab => tab.id !== tabId)
+    setTabs(next)
+    if (activeTab === tabId && next.length > 0) {
+      setActiveTab(next[0].id)
+    }
+  }
+
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--color-window-bg)',
-    }}>
-      {/* Tab bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        background: 'var(--color-titlebar)',
-        borderBottom: '1px solid var(--color-window-border)',
-        padding: '4px 8px',
-        gap: 4,
-        flexShrink: 0,
-      }}>
+    <div className="app-surface terminal-app">
+      <div className="app-toolbar">
         {tabs.map(tab => (
-          <div
+          <button
             key={tab.id}
+            type="button"
             onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '4px 12px',
-              borderRadius: 'var(--radius-sm)',
-              background: activeTab === tab.id ? 'var(--color-surface)' : 'transparent',
-              cursor: 'pointer',
-              fontSize: 12,
-              color: 'var(--color-text)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className={`toolbar-button terminal-tab ${activeTab === tab.id ? 'terminal-tab--active' : ''}`}
           >
             <span>Terminal</span>
             {tabs.length > 1 && (
               <span
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setTabs(tabs.filter(t => t.id !== tab.id))
-                  if (activeTab === tab.id && tabs.length > 1) {
-                    setActiveTab(tabs[0].id)
+                role="button"
+                tabIndex={0}
+                aria-label="Close tab"
+                className="terminal-tab__close"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  closeTab(tab.id)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    closeTab(tab.id)
                   }
                 }}
-                style={{ opacity: 0.6, fontSize: 10 }}
               >
                 <X size={11} />
               </span>
             )}
-          </div>
+          </button>
         ))}
-        <button
-          onClick={addTab}
-          style={{
-            padding: '4px 8px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            fontSize: 14,
-            color: 'var(--color-text-secondary)',
-          }}
-        >
+        <button type="button" onClick={addTab} className="toolbar-button terminal-add-tab" title="New tab">
           +
         </button>
       </div>
 
-      {/* Terminal */}
-      <div
-        ref={termRef}
-        style={{
-          flex: 1,
-          padding: 8,
-          overflow: 'hidden',
-        }}
-      />
+      <div ref={termRef} className="terminal-view" />
     </div>
   )
 }

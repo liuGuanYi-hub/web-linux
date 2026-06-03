@@ -55,7 +55,7 @@ export function WindowManager() {
       style={{
         position: 'fixed',
         inset: 0,
-        bottom: 48,
+        bottom: 'var(--taskbar-height)',
         overflow: 'hidden',
         pointerEvents: 'none',
       }}

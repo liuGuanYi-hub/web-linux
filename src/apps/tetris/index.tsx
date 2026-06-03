@@ -184,7 +184,7 @@ export function TetrisGame() {
     : board
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', background: 'var(--color-window-bg)', fontFamily: 'var(--font-mono)' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', background: 'var(--color-window-bg)', fontFamily: 'var(--font-mono)' }}>
       {/* 主游戏区 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
         <div style={{ display: 'flex', gap: 24, fontSize: 12 }}>

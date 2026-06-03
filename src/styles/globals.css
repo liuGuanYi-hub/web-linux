@@ -1,56 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  /* 背景色 */
-  --color-bg: #F5F0E8;
-  --desktop-wallpaper: linear-gradient(180deg, #F5F0E8 0%, #EDE8DF 100%);
-  --color-surface: #FFFFFF;
-  --color-surface-raised: #FEFEFE;
+  /* Background */
+  --color-bg: #f5f0e8;
+  --desktop-wallpaper: linear-gradient(180deg, #f7f2ea 0%, #ece5da 100%);
+  --color-surface: #fffdf8;
+  --color-surface-raised: #ffffff;
+  --color-surface-soft: #f6f0e7;
 
-  /* 任务栏 */
-  --color-taskbar: #EDE8DF;
-  --color-taskbar-border: #D4CFC5;
+  /* Shell */
+  --taskbar-height: 56px;
+  --color-taskbar: rgba(237, 232, 223, 0.88);
+  --color-taskbar-border: rgba(190, 181, 169, 0.7);
+  --color-titlebar: #ebe4d9;
+  --color-window-bg: #fffefd;
+  --color-window-border: #c8c0b5;
 
-  /* 窗口 */
-  --color-titlebar: #E8E2D8;
-  --color-window-bg: #FEFEFE;
-  --color-window-border: #C8C0B5;
+  /* Text */
+  --color-text: #4a4540;
+  --color-text-secondary: #746d64;
+  --color-text-muted: #9b9489;
 
-  /* 文字 */
-  --color-text: #4A4540;
-  --color-text-secondary: #7A746C;
-  --color-text-muted: #A09A8E;
+  /* Accent */
+  --color-accent: #c49a6c;
+  --color-accent-hover: #b8895a;
+  --color-accent-soft: rgba(196, 154, 108, 0.16);
+  --color-focus-ring: rgba(196, 154, 108, 0.34);
 
-  /* 强调色 */
-  --color-accent: #C49A6C;
-  --color-accent-hover: #B8895A;
+  /* Window controls */
+  --color-btn-minimize: #f5c842;
+  --color-btn-maximize: #5ac05a;
+  --color-btn-close: #e85454;
 
-  /* 窗口按钮（经典配色） */
-  --color-btn-minimize: #F5C842;
-  --color-btn-maximize: #5AC05A;
-  --color-btn-close: #E85454;
+  /* Elevation */
+  --shadow-sm: 0 1px 3px rgba(64, 55, 45, 0.1);
+  --shadow-md: 0 8px 20px rgba(64, 55, 45, 0.12);
+  --shadow-lg: 0 18px 44px rgba(64, 55, 45, 0.16);
+  --shadow-window: 0 18px 50px rgba(64, 55, 45, 0.2);
+  --shadow-window-active: 0 22px 60px rgba(64, 55, 45, 0.24);
 
-  /* 阴影 */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-  --shadow-window: 0 8px 32px rgba(0,0,0,0.15);
-
-  /* 圆角 */
+  /* Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-window: 12px;
+  --radius-xl: 16px;
+  --radius-window: 14px;
 
-  /* 字体 */
+  /* Type */
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Cascadia Code", "Fira Code", monospace;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+  --motion-slow: 220ms;
+  --ease-mac: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
 }
 
 body {
@@ -62,22 +80,1083 @@ body {
   -webkit-user-select: none;
 }
 
-/* 滚动条样式 */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+textarea,
+input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-taskbar);
-  border-radius: 4px;
+  background: rgba(237, 232, 223, 0.8);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-window-border);
-  border-radius: 4px;
+  background: rgba(154, 143, 130, 0.56);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: rgba(116, 109, 100, 0.78);
+}
+
+.desktop {
+  position: fixed;
+  inset: 0;
+  bottom: var(--taskbar-height);
+  overflow: hidden;
+  background: var(--desktop-wallpaper);
+}
+
+.desktop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 24%, rgba(120, 100, 72, 0.04)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(120, 100, 72, 0.06));
+}
+
+.desktop-icon-rail {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 18px;
+  z-index: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 94px);
+  grid-auto-columns: 88px;
+  align-content: start;
+  gap: 8px 10px;
+}
+
+.desktop-icon {
+  width: 88px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 7px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text);
+  transition:
+    transform var(--motion-fast) var(--ease-mac),
+    background var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.desktop-icon:hover {
+  transform: translateY(-2px) scale(1.025);
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 20px rgba(64, 55, 45, 0.08);
+}
+
+.desktop-icon:active {
+  transform: translateY(0) scale(0.965);
+}
+
+.desktop-icon__tile {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 8px 18px rgba(64, 55, 45, 0.11);
+  transition:
+    transform var(--motion-fast) var(--ease-mac),
+    box-shadow var(--motion-fast) ease;
+}
+
+.desktop-icon:hover .desktop-icon__tile {
+  box-shadow: 0 12px 24px rgba(64, 55, 45, 0.15);
+}
+
+.desktop-icon__label {
+  max-width: 74px;
+  color: var(--color-text);
+  font-size: 11px;
+  line-height: 1.22;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.game-folder {
+  position: absolute;
+  top: 18px;
+  left: 214px;
+  z-index: 3;
+  width: min(352px, calc(100vw - 136px));
+  max-height: calc(100% - 36px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(200, 192, 181, 0.88);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 253, 248, 0.9);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  animation: popover-in var(--motion-slow) var(--ease-mac);
+}
+
+.game-folder__header {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid rgba(212, 207, 197, 0.74);
+}
+
+.game-folder__title {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+.game-folder__close {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--ease-mac);
+}
+
+.game-folder__close:hover {
+  background: var(--color-surface-soft);
+  transform: scale(1.06);
+}
+
+.game-folder__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.game-folder .desktop-icon {
+  width: 100%;
+  min-height: 82px;
+}
+
+.game-folder .desktop-icon__tile {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+}
+
+.taskbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  z-index: 9999;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--color-taskbar-border);
+  border-radius: 16px;
+  background: var(--color-taskbar);
+  box-shadow: 0 12px 34px rgba(64, 55, 45, 0.15);
+  backdrop-filter: blur(18px);
+}
+
+.taskbar__start,
+.taskbar__window,
+.taskbar__clock {
+  height: 32px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  transition:
+    transform var(--motion-fast) var(--ease-mac),
+    background var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease,
+    opacity var(--motion-fast) ease;
+}
+
+.taskbar__start {
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.taskbar__start:hover,
+.taskbar__window:hover {
+  transform: translateY(-3px) scale(1.06);
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: var(--shadow-sm);
+}
+
+.taskbar__start--open {
+  background: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.taskbar__separator {
+  width: 1px;
+  height: 24px;
+  margin: 0 3px;
+  background: rgba(200, 192, 181, 0.82);
+}
+
+.taskbar__windows {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 4px 2px;
+}
+
+.taskbar__window {
+  position: relative;
+  max-width: 182px;
+  min-width: 38px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.taskbar__window--active {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-sm);
+}
+
+.taskbar__window--minimized {
+  opacity: 0.58;
+}
+
+.taskbar__window-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.taskbar__window-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transform: translateX(-50%);
+  animation: indicator-in var(--motion-fast) var(--ease-mac);
+}
+
+.taskbar__clock {
+  min-width: 58px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.38);
+  color: var(--color-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.start-menu {
+  position: fixed;
+  left: 12px;
+  bottom: calc(var(--taskbar-height) + 8px);
+  z-index: 9999;
+  width: 336px;
+  max-height: min(620px, calc(100vh - var(--taskbar-height) - 28px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(200, 192, 181, 0.88);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  animation: popover-in var(--motion-slow) var(--ease-mac);
+}
+
+.start-menu__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+}
+
+.start-menu__header {
+  padding: 12px;
+  border-bottom: 1px solid rgba(212, 207, 197, 0.74);
+}
+
+.start-menu__search {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid rgba(212, 207, 197, 0.78);
+  border-radius: 12px;
+  background: rgba(246, 240, 231, 0.82);
+}
+
+.start-menu__search input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.start-menu__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.start-menu__item {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: transform var(--motion-fast) var(--ease-mac), background var(--motion-fast) ease;
+}
+
+.start-menu__item:hover {
+  transform: translateX(2px);
+  background: rgba(246, 240, 231, 0.9);
+}
+
+.start-menu__icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--color-surface-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66);
+}
+
+.start-menu__item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.start-menu__footer {
+  padding: 8px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(212, 207, 197, 0.74);
+}
+
+.shell-button,
+.toolbar-button {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--ease-mac), box-shadow var(--motion-fast) ease;
+}
+
+.shell-button {
+  padding: 0 12px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.toolbar-button {
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.shell-button:hover,
+.toolbar-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  transform: none;
+  box-shadow: none;
+}
+
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-window-border);
+  border-radius: var(--radius-window);
+  background: var(--color-window-bg);
+  box-shadow: var(--shadow-window);
+  pointer-events: auto;
+  transform-origin: bottom left;
+  animation: window-in var(--motion-slow) var(--ease-mac);
+  transition:
+    left var(--motion-slow) var(--ease-mac),
+    top var(--motion-slow) var(--ease-mac),
+    width var(--motion-slow) var(--ease-mac),
+    height var(--motion-slow) var(--ease-mac),
+    transform var(--motion-normal) var(--ease-mac),
+    opacity var(--motion-normal) ease,
+    box-shadow var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.window.active {
+  border-color: rgba(176, 154, 128, 0.95);
+  box-shadow: var(--shadow-window-active);
+}
+
+.window.inactive {
+  box-shadow: var(--shadow-md);
+}
+
+.window.maximized {
+  border-radius: 0;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.window.minimized {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px) scale(0.88);
+}
+
+.window.closing {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.94);
+}
+
+.window.interacting {
+  transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+
+.window__titlebar {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 12px;
+  padding: 0 13px 0 16px;
+  border-bottom: 1px solid rgba(212, 207, 197, 0.74);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent), var(--color-titlebar);
+  cursor: move;
+}
+
+.window.maximized .window__titlebar {
+  cursor: default;
+}
+
+.window__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 520;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+}
+
+.window__control {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--motion-fast) var(--ease-mac), filter var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+
+.window__control:hover {
+  transform: scale(1.14);
+  filter: brightness(1.04);
+  box-shadow: 0 5px 12px rgba(64, 55, 45, 0.18);
+}
+
+.window__control:active {
+  transform: scale(0.92);
+}
+
+.window__content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-surface {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-window-bg);
+  color: var(--color-text);
+}
+
+.app-toolbar {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-window-border);
+  background: var(--color-surface-soft);
+}
+
+.app-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.app-statusbar {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-window-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.path-pill,
+.control-pill {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(212, 207, 197, 0.82);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.path-pill {
+  min-width: 0;
+  flex: 1;
+  padding: 0 12px;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 22px;
+  flex-shrink: 0;
+  margin: 0 4px;
+  background: var(--color-window-border);
+}
+
+.control-pill {
+  padding: 0 10px;
+}
+
+.calculator-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  background: var(--color-window-bg);
+}
+
+.calculator-expression {
+  min-height: 20px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calculator-display {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 18px;
+  border: 1px solid rgba(212, 207, 197, 0.78);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+}
+
+.calculator-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calculator-button {
+  min-width: 0;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-titlebar);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 520;
+  transition:
+    transform var(--motion-fast) var(--ease-mac),
+    background var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.calculator-button:hover {
+  transform: translateY(-1px);
+  background: #ded7cb;
+  box-shadow: var(--shadow-sm);
+}
+
+.calculator-button:active {
+  transform: scale(0.97);
+}
+
+.calculator-button--operator {
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.calculator-button--operator:hover {
+  background: var(--color-accent-hover);
+}
+
+.calculator-button--danger:hover {
+  background: var(--color-btn-close);
+  color: #fff;
+}
+
+.file-manager-header,
+.file-manager-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 100px 120px;
+  align-items: center;
+}
+
+.file-manager-header {
+  min-height: 34px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-window-border);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.file-manager-list {
+  padding: 8px;
+}
+
+.file-manager-row {
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--ease-mac);
+}
+
+.file-manager-row:hover {
+  transform: translateX(2px);
+  background: var(--color-surface-soft);
+}
+
+.file-manager-row--selected {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.file-manager-row--selected:hover {
+  background: var(--color-accent-hover);
+}
+
+.file-manager-name {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  font-size: 13px;
+}
+
+.file-manager-name span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-manager-meta {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.file-manager-row--selected .file-manager-meta {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.text-editor-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-editor-modified {
+  color: var(--color-accent);
+}
+
+.text-editor-area {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 16px 18px;
+  background:
+    linear-gradient(transparent 31px, rgba(200, 192, 181, 0.18) 32px),
+    var(--color-surface);
+  background-size: 100% 32px;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 32px;
+}
+
+.terminal-app .app-toolbar {
+  min-height: 38px;
+  padding: 5px 8px;
+}
+
+.terminal-tab {
+  height: 28px;
+  background: transparent;
+}
+
+.terminal-tab--active {
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-sm);
+}
+
+.terminal-tab__close {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+}
+
+.terminal-tab__close:hover {
+  background: rgba(232, 84, 84, 0.16);
+  color: var(--color-btn-close);
+}
+
+.terminal-add-tab {
+  width: 30px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.terminal-view {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px;
+  background: var(--color-window-bg);
+}
+
+.terminal-view .xterm {
+  height: 100%;
+}
+
+.game-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  overflow: hidden;
+  background: var(--color-window-bg);
+}
+
+.game-scorebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.game-scorebar strong {
+  color: var(--color-text);
+}
+
+.snake-board {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #333;
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(#202020 1px, transparent 1px),
+    linear-gradient(90deg, #202020 1px, transparent 1px),
+    #111;
+  background-size: 16px 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.snake-food,
+.snake-segment {
+  position: absolute;
+}
+
+.snake-food {
+  border-radius: 999px;
+  background: var(--color-btn-close);
+  box-shadow: 0 0 12px rgba(232, 84, 84, 0.42);
+}
+
+.snake-segment {
+  border-radius: 4px;
+  background: #7ed67d;
+  transition-property: left, top;
+  transition-timing-function: linear;
+}
+
+.snake-segment--head {
+  border-radius: 6px;
+  background: #5ac05a;
+  box-shadow: 0 0 10px rgba(90, 192, 90, 0.28);
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(18, 17, 15, 0.78);
+  color: #fff;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  animation: popover-in var(--motion-normal) var(--ease-mac);
+}
+
+.game-overlay--interactive {
+  cursor: pointer;
+}
+
+.game-overlay__title {
+  font-size: 24px;
+  font-weight: 750;
+}
+
+.game-overlay__title--danger {
+  color: var(--color-btn-close);
+}
+
+.game-overlay__hint {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+}
+
+.game-button {
+  min-height: 36px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform var(--motion-fast) var(--ease-mac), background var(--motion-fast) ease;
+}
+
+.game-button:hover {
+  transform: translateY(-1px);
+  background: var(--color-accent-hover);
+}
+
+.game-help {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+@keyframes window-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes indicator-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .game-folder {
+    left: 104px;
+    width: calc(100vw - 116px);
+  }
 }

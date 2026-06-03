@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const TASKBAR_HEIGHT = 56
+
 export interface WindowState {
   id: string
   appId: string
@@ -133,7 +135,7 @@ export const useWindowStore = create<WindowStore>()(
               x: 0,
               y: 0,
               width: window.innerWidth,
-              height: window.innerHeight - 48,
+              height: window.innerHeight - TASKBAR_HEIGHT,
             }
           }),
         }))

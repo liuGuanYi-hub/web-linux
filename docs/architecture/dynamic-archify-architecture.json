@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Web Linux",
+    "subtitle": "Browser-based desktop shell and app registry",
+    "output": "dynamic-archify-architecture.html"
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Browser",
+      "sublabel": "Web user",
+      "pos": [
+        20,
+        250
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "frontend",
+      "label": "Desktop Shell",
+      "sublabel": "React + Vite",
+      "pos": [
+        250,
+        250
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "windows",
+      "type": "backend",
+      "label": "Window Manager",
+      "sublabel": "Open + focus + close",
+      "pos": [
+        500,
+        120
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "App Registry",
+      "sublabel": "Lazy app loader",
+      "pos": [
+        500,
+        380
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "state",
+      "type": "database",
+      "label": "Window State",
+      "sublabel": "Store + shortcuts",
+      "pos": [
+        760,
+        250
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Web Linux runtime",
+      "wraps": [
+        "shell",
+        "windows",
+        "registry",
+        "state"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "browser",
+      "to": "shell",
+      "label": "boot",
+      "variant": "emphasis"
+    },
+    {
+      "from": "shell",
+      "to": "windows",
+      "label": "windows",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "orthogonal-v"
+    },
+    {
+      "from": "shell",
+      "to": "registry",
+      "label": "launch",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "orthogonal-v"
+    },
+    {
+      "from": "windows",
+      "to": "state",
+      "label": "persist",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "registry",
+      "to": "state",
+      "label": "events",
+      "fromSide": "right",
+      "toSide": "left",
+      "variant": "dashed"
+    }
+  ],
+  "cards": []
+}

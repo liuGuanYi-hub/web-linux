@@ -56,3 +56,10 @@ src/
   system/    桌面、窗口管理、任务栏、开始菜单和应用注册
   styles/    全局样式与主题变量
 ```
+
+## 动态系统架构图
+
+![Web Linux 动态系统架构图](docs/architecture/dynamic-archify-architecture.svg)
+
+- [打开交互式动态架构图](docs/architecture/dynamic-archify-architecture.html)
+- [查看架构源数据](docs/architecture/dynamic-archify-architecture.json)
